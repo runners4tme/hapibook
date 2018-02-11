@@ -278,6 +278,16 @@ module.exports.scheme = scheme
 
 We create the authenticate we will be called before our handlers. Inside it, we declare a variable called authorization which is our token from the client, we create a new validation status object using the token and the authStatus function. If the token is not provided, we return an error stating that a token is missing. If the length is not valid, we return an error stating that the token is invalid, If the token type is not valid, we return an error specifying that the token type is not valid. If the token is valid, we verify it with our secret code that only our server knows and return the user's id, username and email as credentials. Otherwise if there was an error, we just return an error stating that the user is not authorized. We export the authStatus and the scheme so that we can use them in other parts of our application.
 
+We can now set the Bear scheme as our default strategy for authentication. Inside our server.js file add the following code.
+
+```js
+server.auth.scheme('token', scheme)
+server.auth.strategy('Bearer', 'token')
+server.auth.default('Bearer')
+```
+
+All our routes are now protected the the scheme that we created above.
+
 ### S**ummary:**
 
 We have learnt the following aspects from the chapter
@@ -285,7 +295,7 @@ We have learnt the following aspects from the chapter
 1. Understand what json web tokens.
 2. Learn about hapi schemes and strategies.
 3. Implement user signup and login.
-4. ~~Apply auth to all the routes.~~
+4. Apply auth to all the routes.
 
 
 

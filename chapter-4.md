@@ -184,6 +184,7 @@ $ mkdir controllers
 Let's make a folder for handlers inside our controllers folder. This folder will hold all the handlers for our routes.
 
 ```
+$ cd controllers
 $ mkdir handlers
 ```
 
@@ -198,6 +199,7 @@ Now we are all set to start creating our handlers. We will start with our Destin
 Inside the handlers folder, create a file called destination.js
 
 ```
+$ cd handlers
 $ touch destination.js
 ```
 
@@ -238,7 +240,7 @@ module.exports.showDestination = async (request, helper) => {
 }
 ```
 
-We start off by creating an async function, inside it we create a new variable called id, which is the id of the destination that we want to show. We use the findOne method to find the destination for our collection. Now we lastly create a response which is all the information stored for this destination and set the response code as well.
+We start off by creating an async function, inside it we create a new variable called id, which is the id of the destination that we want to show. We use the findOne method to find the destination for our collection. Now we lastly create a response which is all the information stored for this destination and set the response code as well. If anything goes wrong, we use boom to create an error response and return it.
 
 Now we need to update a destination, add the following code for updating a destination.
 
@@ -255,7 +257,7 @@ module.exports.updateDestination = async (request, helper) => {
 }
 ```
 
-Updating a destination involves two operations, finding the destination that we want to update and updating the destination. Luckily we can use findOneAndUpdate method to do these two operations at the same time, we start off by creating an async function, inside it, we declare two variables, id which is the id of the destination we want to update and payload which is the data that we want to update our destination with, we then update the destination with the findOneAndUpdate method. We can now send the updated destination with our response.  
+Updating a destination involves two operations, finding the destination that we want to update and updating the destination. Luckily we can use findOneAndUpdate method to do these two operations at the same time, we start off by creating an async function, inside it, we declare two variables, id which is the id of the destination we want to update and payload which is the data that we want to update our destination with, we then update the destination with the findOneAndUpdate method. We can now send the updated destination with our response. If anything goes wrong, we use boom to create an error response and return it.
 
 We need to do is to remove a destination, if we don't want it anymore. Add the following code for deleting a destination.
 
@@ -271,7 +273,7 @@ module.exports.removeDestination = async (request, helper) => {
 }
 ```
 
-We need only need to know the id of the destination that we want to delete to get this done, so we start by creating an async function, then we create a variable call id passed through url parameters. Now we can use the findOneAndRemove method to delete it. We response we the destination delete and appropriate code for this operation.
+We need only need to know the id of the destination that we want to delete to get this done, so we start by creating an async function, then we create a variable call id passed through url parameters. Now we can use the findOneAndRemove method to delete it. We respond with nothing and appropriate code for this operation.
 
 Lastly we need to find all the destinations. Add the following code for finding all the destinations.
 
@@ -287,7 +289,9 @@ module.exports.showDestinations = async (request, helper) => {
 }
 ```
 
-Now we need to add some controllers for our routes, let's create a folder called route on the route of our project.
+This is the last handler for our destinations. We need to use the query object from our request for this task. We create an async function, inside this function, we create a variable called query which will hold all the parameters that we want to filter our destinations with when we request for them. This means that we can filter destinations by currency, population, etc. We then use our helper toolkit to create a response and return it. If we encounter an error, we respond with a bad request.
+
+Now we need create the object that will be used for configuring our routes, let's create a folder called routes inside the controllers directory.
 
 ```
 $ mkdir routes
@@ -296,14 +300,26 @@ $ mkdir routes
 Let's change directory and get into the folder and create a file called destinations.js.
 
 ```
+$ cd routes
 $ destinations.js
 ```
 
-Inside the file, let's write the following code:
+Inside the file, we need to import the handlers that we just created:
 
 ```js
-const Destination = require('../../models/Destination')
-const { routeCreator } = require('../../helpers/routeCreator')
+const { 
+  newDestination, 
+  showDestination, 
+  updateDestination, 
+  removeDestination, 
+  showDestinations 
+} = require('../handlers/destination')
+```
+
+We are going to create to create a destination on path '/destinations' and the method use is POST, we will use the newDestination handler.
+
+```js
+
 
 const createDestination = {
     path: '/destinations',
@@ -312,7 +328,7 @@ const createDestination = {
 }
 ```
 
-Let's find this destination that we have just created.
+We are going to find a destination using an id, thus the path for finding a single destination is '/destinations/{id}' and the method is GET, we will use the showDestination handler in this task.
 
 ```js
 const findDestination = {
@@ -322,7 +338,7 @@ const findDestination = {
 }
 ```
 
-Firstly we have created an object that will handle the create of a destination, the next object will handle finding a single destination using an id.
+We are going to update a destination using an id, thus the path for finding a single destination is '/destinations/{id}' and the method is PUT, we will use the updateDestination handler in this task.
 
 ```js
 const editDestination = {
@@ -332,7 +348,7 @@ const editDestination = {
 }
 ```
 
-We are also allow to delete documents in the our destination collection.
+We are going to delete a destination using an id, thus the path for finding a single destination is '/destinations/{id}' and the method is DELETE, we will use the deleteDestination handler in this task.
 
 ```js
 const deleteDestination = {
@@ -342,9 +358,7 @@ const deleteDestination = {
 }
 ```
 
-The above object will handle the editing and finding all the destinations that are stored in our database. We are now done with the routes for our destinations, we will create the routes for users when we do the authentification.
-
-Now let's focus on creating queries for our destinations.
+We are going to find all the destinations using the path '/destinations'. The method is GET and the showDestinations will handle this operation.
 
 ```js
 const findDestinations = {
@@ -357,16 +371,23 @@ const findDestinations = {
 We also need to combine our route helpers into an array and export them.
 
 ```js
-module.exports = routeCreator(createDestination, findDestination, editDestination, findDestinations, deleteDestination)
+module.exports = [ 
+  createDestination, 
+  findDestination, 
+  editDestination, 
+  findDestinations, 
+  deleteDestination
+]  
 ```
 
-We got to create an index file to export all our routes so that they can be used elsewhere.
+We got to create an index file to export all our routes so that they can be used inside our server.js file.
 
 ```
+$ cd ..
 $ touch index.js
 ```
 
-Then add the following code to the file
+Add the following code to the file to import our objects for configuring routes and combine all of them.
 
 ```js
 const destinations = require('./routes/destinations')
@@ -374,23 +395,26 @@ const destinations = require('./routes/destinations')
 module.exports = [...destinations]
 ```
 
+We have successfully created all the configuration for our destination routes, let's extend our server further with plugins.
+
 ## **4. Plugins.**
 
-We are going to register a couple of packages as Plugins so that we will be able to handle logs for our server on the console. We are going to use a package called good, we can define options for it below.
+We are going to register a couple of packages as plugins so that we will be able to handle logs for our server on the console. We are going to use a package called good, we can define options for it below.
 
-We now have move the server start function and calling it after registering all the packages to our server. We are going to log the port uri after we start the server. I want to log the errors, response and requests so that I can immediately pick up if there is any errors on our api server.
+We need to register the plugins before we start the server and calling it after registering all the packages to our server. We are going to use monitor events that will be happening to our server. Whenever such events occurs, I want to log the errors, response and requests so that I can immediately pick up if there is anything not working well on our api server.
 
-Let's install some of the packages that we want to add as Plugins to our server.
+Let's install some of the packages that we want to add as plugins to our server.
 
 ```
 $ yarn add good good-console good-squeeze
 ```
 
-We are going to add our Plugins and edit the code to start the server once the registration is complete.
+We are going to add our plugins and edit the code to start the server once the registration is complete. We start by creating options for our registration of the server. After that we register good as a plugin using the built-in method register. Then we start the server and connect to the database.
 
 ```js
 const server = require('../server');
 const mongoose = require('mongoose');
+const good = require('good');
 mongoose.Promise = global.Promise;
 
 const options = {
@@ -410,6 +434,7 @@ const options = {
 
 (async () => {
     try {
+        await server.register({ plugin: good, options })
         await server.start()
         await mongoose.connect('mongodb://127.0.0.1/test', { 
           useMongoClient: true 

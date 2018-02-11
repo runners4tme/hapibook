@@ -40,14 +40,24 @@ const server = new hapi.Server({
 
 Above we have setup a server that is hosted on localhost and running on port 3000.
 
-The following methods amongst other's are available to assist you with server configuration.
+The following methods amongst others are available to assist you with server configuration.
 
-* server.route - this method is for configuring routes for your server.
-* server.start - this method is for starting the server.
-* server.stop - this method is for stoping the server.
-* server.register - this method is used to register plugins to the server. 
+* server.route - This method is for configuring routes for your server. It accepts a object or an array of objects as a parameter.
+* server.start - This method is useful for starting the server. This method returns a promise and throws an error if the server is not correctly configured or will not be able to listen to incoming events.
+* server.stop - this method is useful for stoping the server. It accepts options that can be used to override the time needed to stop all the incoming requests to the server.
+* server.register - this method is used to register plugins to the server. It accepts a plugin object and optional parameters. 
 
-Now let's started the server and see it in action by creating a small route to test it. route is a method that takes in an object or array of objects to handle different routes. The object inside the route have to have the following properties i.e path, method and handler. The path is the unique resource location and the method is the HTTP verb that can be fulfilled on our path and the handler is a function that handles the request and response for our path.
+Now let's start the server and see it in action by creating a single route to test it. We are going to create a single route using the server.route method. We are going to create an object that will handle the request when with hit '/' on our server. The object can have the following four properties, the fourth property is optional.
+
+* **path** - This is the absolute path for all the incoming requests.
+
+* **method** - This is the HTTP method we want to perform on the resource. This can be a single method or any array of methods that are assigned to the same path specified.
+
+* **handler** - This is the function that will handle the request and handle the authentication, validation  and generate the correct response for our route.
+
+* **options **- This is an object that is used for setting additional parameters for our route like validation, auth strategies, etc.
+
+
 
 ```js
 server.route({
@@ -149,14 +159,6 @@ This is the object that contains the parameters is passed through the url when a
 **2.3 request.query**
 
 This is the object that contains the parsed query string 3that is passed through the url by the client.
-
-We are going to create objects that will handle the request when they hit our server. These objects will be used on our routes. let's recap on what we learnt earlier on, the objects have three properties.
-
-* **path** - this is where the resource will be accessed.
-
-* **method** - this is the method we want to perform on the resource.
-
-* **handler** - this is the function that will handle the request and response to the path.
 
 ## **3. The helper toolkit.**
 

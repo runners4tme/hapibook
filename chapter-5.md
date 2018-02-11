@@ -7,9 +7,13 @@ In this chapter, we are going to cover the following topics:
 * Implement user signup and login.
 * Apply auth to all the routes.
 
-## JSON Web Tokens
+## Introduction
 
-We are going to create functions that are going to handle users registration and logging in and out of the application. These tokens contains three parts that might not be visible when you look at the token. The three parts are:
+We are going to create functions that are going to handle users registration and logging in and out of the application. We will be using JSON web tokens to handle all the interactions with our server. 
+
+## JSON web tokens
+
+These tokens contains three parts that might not be visible when you look at the token. The three parts are:
 
 1. Header - This is an encoded JSON object which contains the the type of the token and the hashing algorithm used. This is the sha512 that we are going to use to create our token.
 2. Payload - This is an encoded JSON object which contains the encrypted data. This will be comprised of the id, username and email address of the user and the expiry date of the token.

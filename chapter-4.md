@@ -201,6 +201,13 @@ Inside the handlers folder, create a file called destination.js
 $ touch destination.js
 ```
 
+Import the Destination model and also boom for handling our errors.
+
+```js
+const Boom = require('boom')
+const Destination = require('../../models/Destination')
+```
+
 Add the following code for creating a new destination.
 
 ```js
@@ -215,7 +222,9 @@ module.exports.newDestination = async (request, helper) => {
 }
 ```
 
-Now let's handle showing a destination.
+To create a new destination is simple, We create an async function, inside it, we firstly create a new object called payload using object spread. This is just a short-hand for the built-in object assign method. Then we create and save a new destination to our database. Lastly we use the response method to generate a response for our route and specify the response code. If anything goes wrong, we use boom to create an error response and return it. 
+
+Now let's handle showing a destination. Add the following code for showing a destination.
 
 ```js
 module.exports.showDestination = async (request, helper) => {
@@ -228,6 +237,8 @@ module.exports.showDestination = async (request, helper) => {
   }
 }
 ```
+
+We start off by creating an async function, inside it we create a new variable called id, which is the id of the destination that we want to show. We use the findOne method to find the destination for our collection. Now we lastly create a response which is all the information stored for this destination and set the response code as well.
 
 Now we need to update a destination
 

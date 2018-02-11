@@ -319,8 +319,6 @@ const {
 We are going to create to create a destination on path '/destinations' and the method use is POST, we will use the newDestination handler.
 
 ```js
-
-
 const createDestination = {
     path: '/destinations',
     method: 'POST',
@@ -377,7 +375,7 @@ module.exports = [
   editDestination, 
   findDestinations, 
   deleteDestination
-]  
+]
 ```
 
 We got to create an index file to export all our routes so that they can be used inside our server.js file.
@@ -445,6 +443,8 @@ const options = {
     };
 })();
 ```
+
+Whenever you now make a request to our server, the path, status code and other details will be logged to our console.
 
 ### S**ummary:**
 

@@ -16,12 +16,6 @@ We are going to create a folder that will hosts all our tests.
 $ mkdir test
 ```
 
-Inside it, we will create a folder that will be used to host helpers for our tests.
-
-```
-$ mkdir helpers
-```
-
 Now let's create two more files, one file will be for unit tests and the other one will be for integration tests.
 
 ```
@@ -49,7 +43,7 @@ This package is for assertions.
 
 ## Unit tests
 
-Let's start writing some unit tests for our functions.
+Units tests are for testing a single unit of the application and check if it works in isolation. Let's start writing some unit tests for our functions.
 
 ```js
 const { getSalt, getSaltedPassword, passwordIsInvalid, createToken } = require('../api/helpers/userService')
@@ -129,7 +123,7 @@ describe('userService', () => {
 
 We need to do one more unit test for our function that we use to create a user.
 
-```
+```js
 describe('Users', () => {
   describe('createUser', () => {
     it('should create a user', async () => {
@@ -149,7 +143,7 @@ describe('Users', () => {
 
 ## Integration tests
 
-Now let's add some tests. We need to declare all the packages that we are going to use to write our tests.
+Integration tests are for testing that the whole application works well together. Now let's add some tests. We need to declare all the packages that we are going to use to write our tests.
 
 ```js
 const server = require('../server')

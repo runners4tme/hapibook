@@ -25,6 +25,14 @@ We are going to use Joi which is a package that works really well with hapi fram
 
 Now we need to validate our users to make sure that users don't try to register and login with incomplete data.
 
+Inside the validators folder, create a users.js file for our users.
+
+```
+$ touch users.js
+```
+
+## User Validation
+
 Let's start by a user schema to make sure that the users provide all the required information.
 
 ```js
@@ -37,7 +45,15 @@ module.exports.userSchema = Joi.object().keys({
 })
 ```
 
-Let's apply it to our handler to validate the data when we sign up.
+Let's go to our handlers to apply the above validator.
+
+```
+$ cd ..
+$ cd controllers
+$ cd handlers
+```
+
+Let's apply it to our handler to validate the data when we sign up. We also need to set auth as false since we don't want to apply our auth strategy to this route.
 
 ```js
 options: {
@@ -48,7 +64,7 @@ options: {
   }
 ```
 
-Let's also validate the logging in of our users.
+Let's also validate the logging in of our users. We also need to set auth as false since we don't want to apply our auth strategy to this route.
 
 ```js
 options: {
@@ -61,23 +77,25 @@ options: {
 
 ## Payload validation
 
-Let's also create a file to handle validation for our destinations
+Let's go back to our validators and create a file to handle validation for our destinations
 
 ```
+$ cd ..
+$ cd validators
 $ touch destinations.js
 ```
 
-add this code
+add the following code for validating the payload of new destinations.
 
 ```js
 const Joi = require('joi')
 
 module.exports.rawDestinationSchema = Joi.object().keys({
-    currency: Joi.string().required(),
-    url: Joi.string().required(),
-    languages: Joi.array().required(),
-    capitalCity: Joi.string().required(),
-    population: Joi.string().required()
+  currency: Joi.string().required(),
+  url: Joi.string().required(),
+  languages: Joi.array().required(),
+  capitalCity: Joi.string().required(),
+  population: Joi.string().required()
 })
 ```
 
@@ -87,10 +105,10 @@ This is the first function that will be executed every time a request hits this 
 
 ```js
 options: {
-        validate: {
-            payload: rawDestinationSchema
-        }
-    }
+  validate: {
+  payload: rawDestinationSchema
+  }
+}
 ```
 
 ## Params Validation
@@ -99,7 +117,7 @@ Lets also create a validator for the id of finding a destination.
 
 ```js
 module.exports.idSchema = Joi.object().keys({
-    id: Joi.string().length(24). required()
+  id: Joi.string().length(24). required()
 })
 ```
 
@@ -107,21 +125,21 @@ Now we will be able to get the get destination by id which is pretty much straig
 
 ```js
 options: {
-        validate: {
-            params: idSchema
-        }
-    }
+  validate: {
+    params: idSchema
+  }
+}
 ```
 
 Lets also create a validator for the query of finding destinations. All these parameters are optional in this case since will only use them to filter the results that we will get from the database.
 
 ```js
 module.exports.destinationsSchema = Joi.object().keys({
-    currency: Joi.string().optional(),
-    url: Joi.string().optional(),
-    languages: Joi.array().optional(),
-    capitalCity: Joi.string().optional(),
-    population: Joi.string().optional()
+  currency: Joi.string().optional(),
+  url: Joi.string().optional(),
+  languages: Joi.array().optional(),
+  capitalCity: Joi.string().optional(),
+  population: Joi.string().optional()
 })
 ```
 
@@ -129,11 +147,11 @@ Now we will be able to get the get destinations and filter them using the querie
 
 ```js
 options: {
-        validate: {
-            payload: destinationSchema,
-            params: idSchema
-        }
-    }
+  validate: {
+    payload: destinationSchema,
+    params: idSchema
+  }
+}
 ```
 
 ## Query Validation
@@ -144,10 +162,10 @@ Now we will be able to get the get destination by id which is pretty much straig
 
 ```js
 options: {
-        validate: {
-            query: destinationSchema
-        }
-    }
+  validate: {
+    query: destinationSchema
+  }
+}
 ```
 
 ### S**ummary:**

@@ -197,16 +197,41 @@ Now let's make all the function available to other parts of our application by e
 module.exports = [ signUp, signIn ]
 ```
 
+We also need to add these object inside our index file for all our routes.
+
+```
+$ cd ..
+```
+
+Inside the index.js file add the following code.
+
+```js
+const users = require('./routes/users')
+const destinations = require('./routes/destinations')
+
+module.exports = [...destinations, ...users]
+```
+
 ## Anthentification Schemes and Strategies
 
-We need to create a custom auth decorator that will wrap all our requests to all the endpoints that requires the user to be logged in to access the resources that exist in that location. Let's add it to our project. Firstly let's import the packages that are need for this task.
+We need to create a custom authentication decorator that will wrap all our requests to all the endpoints that requires the user to be logged in to access the resources that exist in that location. Let's add it to our project. Firstly let's import the packages that are need for this task. We are going to use boom to handle all the errors and jsonwebtoken to validate the token sent by the user.
+
+Let's go to our helpers folder and and create a file called scheme.js
+
+```
+$ cd cd ..
+$ cd helpers
+$ touch scheme.js
+```
+
+Then require all the needed packages.
 
 ```js
 const Boom = require('boom')
 const jwt = require('jsonwebtoken')
 ```
 
-Then we need to create a pure function that will process our token from the client.
+Then we need to create a function that will process the validation of our token from the client.
 
 ```js
 const authStatus = token => {
@@ -250,6 +275,8 @@ const scheme = (server, options) => {
 module.exports.authStatus = authStatus
 module.exports.scheme = scheme
 ```
+
+We create the authenticate we will be called before our handlers. Inside it, we declare a variable called authorization which is our token from the client, we create a new validation status object using the token and the authStatus function. If the token is not provided, we return an error stating that a token is missing. If the length is not valid, we return an error stating that the token is invalid, If the token type is not valid, we return an error specifying that the token type is not valid. If the token is valid, we verify it with our secret code that only our server knows and return the user's id, username and email as credentials. Otherwise if there was an error, we just return an error stating that the user is not authorized. We export the authStatus and the scheme so that we can use them in other parts of our application.
 
 ### S**ummary:**
 

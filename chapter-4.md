@@ -42,10 +42,10 @@ Above we have setup a server that is hosted on localhost and running on port 300
 
 The following methods amongst others are available to assist you with server configuration.
 
-* server.route - This method is for configuring routes for your server. It accepts a object or an array of objects as a parameter.
-* server.start - This method is useful for starting the server. This method returns a promise and throws an error if the server is not correctly configured or will not be able to listen to incoming events.
-* server.stop - this method is useful for stoping the server. It accepts options that can be used to override the time needed to stop all the incoming requests to the server.
-* server.register - this method is used to register plugins to the server. It accepts a plugin object and optional parameters. 
+* **server.route** - This method is for configuring routes for your server. It accepts a object or an array of objects as a parameter.
+* **server.start** - This method is useful for starting the server. This method returns a promise and throws an error if the server is not correctly configured or will not be able to listen to incoming events.
+* **server.stop** - this method is useful for stoping the server. It accepts options that can be used to override the time needed to stop all the incoming requests to the server.
+* **server.register** - this method is used to register plugins to the server. It accepts a plugin object and optional parameters. 
 
 Now let's start the server and see it in action by creating a single route to test it. We are going to create a single route using the server.route method. We are going to create an object that will handle the request when with hit '/' on our server. The object can have the following four properties, the fourth property is optional.
 
@@ -91,7 +91,7 @@ Run the following command to start the server:
 $ yarn start
 ```
 
-The command will run node with our entry file called server.js, this will start up our server. Open your favorite browser and run the following command on your console. When we visit the localhost:3000, the browser should respond with the following message. 
+The command will run node with our entry file called server.js, this will start up our server. Open your favorite browser and run the following command on your console. When we visit the localhost:3000, the browser should respond with the following message.
 
 ```
 'api for destinations'
@@ -168,25 +168,40 @@ This is the object that contains the parsed query string 3that is passed through
 
 ## **3. The helper toolkit.**
 
-The helper toolkit contains the methods that is used to send information to the client after it has request something from the server. This can also be extended to include the status code. The following methods are part of the reply interface and will come in handy later on in the book.
+The helper toolkit contains the methods that is used to send information to the client after it has request something from the server. This can also be extended to include the status code. The following methods are part of the helper toolkit and will come in handy later on in the book.
 
-3.1 Code
+* **helper.response** - This method takes in a parameter and returns a response object, you can specify headers, types etc.
+* **helper.redirect** - This method takes in a path and redirect the client to the the given parameter.
+* **helper.authenticated** - This method takes in an object and passes the valid credentials to the request object.
+* **helper.unauthenticated** - This method takes in an object and passes an error and invalid credentials when authentication fails.
 
-This method is used to set the status code for our response.
-
-Create the controller folder
+We can use some of the above methods to create controllers for our application. Controllers will allow us to interact with oiur database, Create the controllers folder.
 
 ```
 $ mkdir controllers
 ```
 
-Let's make a folder for handlers in side our controllers folder.
+Let's make a folder for handlers inside our controllers folder. This folder will hold all the handlers for our routes.
 
 ```
 $ mkdir handlers
 ```
 
-Handlers need to be created first before we can create the routes for our services. We are starting with the new destination.
+Handlers need to be created first before we can create the routes for our services. Inside our handle we also need to handle errors accordingly, we will be using a package called boom to handle errors for our application. Let's install the package.
+
+```
+$ yarn add boom
+```
+
+ Now we are all set to start creating our handlers. We will start with our Destinations. We are going to create a handler for making a  new destination.
+
+Inside the handlers folder, create a file called destination.js
+
+```
+$ touch destination.js
+```
+
+Add the following code for creating a new destination.
 
 ```js
 module.exports.newDestination = async (request, helper) => {

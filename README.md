@@ -1,7 +1,5 @@
 # Hapi Framework
 
-This file file serves as your book's preface, a great place to describe your book's content and ideas.
-
 **Table Of Contents**
 
 **Chapter 1: Getting started**

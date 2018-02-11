@@ -85,7 +85,7 @@ Nice, now that we have some comfort on the token validator, we can move over to 
 describe('userService', () => {
   describe('getSalt', () => {
     it('should get salt', async () => {
-      const password = 'myPassword'
+      const password = 'password'
       const result = getSalt(password)
       expect(result).to.be.typeof('string')
       expect(result.length).to.be.equal(16)
@@ -93,8 +93,7 @@ describe('userService', () => {
   })
   describe('getSaltedPassword', () => {
     it('should salted password', async () => {
-      const password = 'myPassword'
-      const salt = getSalt(password)
+      const salt = '43f716b253be173f9fa75013ea27fa42'
       const result = getSaltedPassword(password, salt)
       expect(result).to.be.typeof('string')
       expect(result.length).to.be.equal(64)
@@ -102,9 +101,8 @@ describe('userService', () => {
   })
   describe('passwordIsInvalid', () => {
     it('should validate the password', async () => {
-      const password = 'myPassword'
-      const salt = getSalt(password)
-      const saltedPassword = getSaltedPassword(password, salt)
+      const password = 'password'
+      const saltedPassword = 'e876483449e05e9b2754fad90717e92ef4195ad3f7f49f613783613acb9c9844395de4f8f94381cc56f37786d0d70f74077564268871c67caddc8683b206b057'
       const isPasswordInvalid = passwordIsInvalid(password, saltedPassword, salt)
       expect(result).to.be.typeof('boolean')
       expect(result).to.be.truthy()
@@ -112,7 +110,7 @@ describe('userService', () => {
   })
   describe('createToken', () => {
     it('should create a token', async () => {
-      const user = { id: '12345', username: 'les' email: 'les@gmail.com' }
+      const user = { id: '12345', username: 'les', email: 'les@gmail.com' }
       const result = createToken(user)
       expect(result).to.be.typeof('string')
       expect(result.split('.').length).to.be.equal(3)
@@ -282,7 +280,7 @@ describe('DELETE /destination', () => {
         method: 'DELETE',
         url: '/destinations/5a173a2336a04f1a048e8589'
       }
-      const stub = sinon.stub(Destination, 'findOneAndRemove').resolves({_id: 1})
+      const stub = sinon.stub(Destination, 'findOneAndRemove').resolves(null)
       const response = await server.inject(options)
       expect(response.statusCode).to.equal(204)
       expect(response.result).to.equal(null)

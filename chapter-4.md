@@ -193,7 +193,7 @@ Handlers need to be created first before we can create the routes for our servic
 $ yarn add boom
 ```
 
- Now we are all set to start creating our handlers. We will start with our Destinations. We are going to create a handler for making a  new destination.
+Now we are all set to start creating our handlers. We will start with our Destinations. We are going to create a handler for making a  new destination.
 
 Inside the handlers folder, create a file called destination.js
 
@@ -206,7 +206,7 @@ Add the following code for creating a new destination.
 ```js
 module.exports.newDestination = async (request, helper) => {
   try {
-    const payload = Object.assign({}, request.payload)
+    const payload = { ...request.payload }
     const destination = await Destination.create(payload)
     return helper.response({ id: destination._id }).code(201)
   } catch (error) {
@@ -235,7 +235,7 @@ Now we need to update a destination
 module.exports.updateDestination = async (request, helper) => {
   try {
     const id = request.params.id
-    const payload = Object.assign({}, request.payload)
+    const payload = { ...request.payload }
     const destination = await Destination.findOneAndUpdate({_id: id}, payload, {new: true})
     return helper.response(destination).code(200)
   } catch (error) {
@@ -263,7 +263,7 @@ Lastly we need to find all the destinations.
 ```js
 module.exports.showDestinations = async (request, helper) => {
   try {
-    const query = request.query
+    const query = { ...request.query }
     const destinations = await Destination.find(query)
     return helper.response(destinations).code(200)
   } catch (error) {

@@ -121,8 +121,8 @@ module.exports.signUpUser = async (request, helper) => {
   try {
     const { payload: { username, password, email }} = request
     const salt = getSalt(password)
-    const enctryptedPassword = getSaltedPassword(password, salt)
-    const newUser = { username, salt, password: enctryptedPassword }
+    const encryptedPassword = getSaltedPassword(password, salt)
+    const newUser = { username, salt, password: encryptedPassword }
     const user = await User.create(newUser)
     const token = createToken(user._id, username, email)
     return helper.response({token}).code(201)

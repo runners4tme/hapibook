@@ -19,7 +19,7 @@ These tokens contains three parts that might not be visible when you look at the
 2. Payload - This is an encoded JSON object which contains the encrypted data. This will be comprised of the id, username and email address of the user and the expiry date of the token.
 3. Signature - This is an encrypted hash of the header and and payload using the key that will be provided. This key is only known by the originating server that contains it, that is why it must not be hard coded in your code. It must be kept as an environmental variable.
 
-We are certainly going to need a couple of functions that will handle the creation of the token for the user, the validation of the token and also the encoding and decoding of the token.We need to create a functions that will handle salting and hashing and also create JSON web tokens. Let's add the jsonwebtoken package used for encoding and decoding web tokens. 
+We are certainly going to need a couple of functions that will handle the creation of the token for the user, the validation of the token and also the encoding and decoding of the token.We need to create a functions that will handle salting and hashing and also create JSON web tokens. Let's add the jsonwebtoken package used for encoding and decoding web tokens.
 
 ```
 $ yarn add jsonwebtoken
@@ -155,14 +155,25 @@ module.exports.signInUser = async (request, helper) => {
 }
 ```
 
-Let's create the handlers to make it possible to sign up and login into the application.
+To login the users, We create an async function, inside the function we start by destructuring the request payload to get username and password. We use the username provided to find the user, if the user doesn't exist we return an error specifying that the username is invalid. If the password of the user is not valid, we return an error specifying that the password is not valid otherwise we create a new token for the user and return it.
 
-Start by registering the user.
+Let's create the object to configure our routes to make it possible to sign up and login into the application.
+
+```
+$ cd ..
+$ cd routes
+$ touch user.js
+```
+
+Inside the user.js file, let's import the handlers that we just created for our users.
 
 ```js
 const { signUpUser, signInUser } = require('../handlers/user')
-const { userSchema } = require('../../validators/users')
+```
 
+Let's start by registering the user. The users will register on the path '/users/signup' using the method called POST and the signUpUser handler.
+
+```js
 const signUp = {
   path: '/users/signup',
   method: 'POST',
@@ -170,7 +181,7 @@ const signUp = {
 }
 ```
 
-We need to sign up users as well.
+We need to sign in users as well. The users will sign in on the path '/users/signin' using the method called POST and the signInUser handler.
 
 ```js
 const signIn = {
@@ -180,7 +191,7 @@ const signIn = {
 }
 ```
 
-Now let's make all the function available to other parts of our application.
+Now let's make all the function available to other parts of our application by exporting them.
 
 ```js
 module.exports = [ signUp, signIn ]

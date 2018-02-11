@@ -222,7 +222,7 @@ module.exports.newDestination = async (request, helper) => {
 }
 ```
 
-To create a new destination is simple, We create an async function, inside it, we firstly create a new object called payload using object spread. This is just a short-hand for the built-in object assign method. Then we create and save a new destination to our database. Lastly we use the response method to generate a response for our route and specify the response code. If anything goes wrong, we use boom to create an error response and return it. 
+To create a new destination is simple, We create an async function, inside it, we firstly create a new object called payload using object spread. This is just a short-hand for the built-in object assign method. Then we create and save a new destination to our database. Lastly we use the response method to generate a response for our route and specify the response code. If anything goes wrong, we use boom to create an error response and return it.
 
 Now let's handle showing a destination. Add the following code for showing a destination.
 
@@ -240,7 +240,7 @@ module.exports.showDestination = async (request, helper) => {
 
 We start off by creating an async function, inside it we create a new variable called id, which is the id of the destination that we want to show. We use the findOne method to find the destination for our collection. Now we lastly create a response which is all the information stored for this destination and set the response code as well.
 
-Now we need to update a destination
+Now we need to update a destination, add the following code for updating a destination.
 
 ```js
 module.exports.updateDestination = async (request, helper) => {
@@ -255,7 +255,9 @@ module.exports.updateDestination = async (request, helper) => {
 }
 ```
 
-We can also delete a destination if we are keen on doing so below.
+Updating a destination involves two operations, finding the destination that we want to update and updating the destination. Luckily we can use findOneAndUpdate method to do these two operations at the same time, we start off by creating an async function, inside it, we declare two variables, id which is the id of the destination we want to update and payload which is the data that we want to update our destination with, we then update the destination with the findOneAndUpdate method. We can now send the updated destination with our response.  
+
+We need to do is to remove a destination, if we don't want it anymore. Add the following code for deleting a destination.
 
 ```js
 module.exports.removeDestination = async (request, helper) => {
@@ -269,7 +271,9 @@ module.exports.removeDestination = async (request, helper) => {
 }
 ```
 
-Lastly we need to find all the destinations.
+We need only need to know the id of the destination that we want to delete to get this done, so we start by creating an async function, then we create a variable call id passed through url parameters. Now we can use the findOneAndRemove method to delete it. We response we the destination delete and appropriate code for this operation.
+
+Lastly we need to find all the destinations. Add the following code for finding all the destinations.
 
 ```js
 module.exports.showDestinations = async (request, helper) => {

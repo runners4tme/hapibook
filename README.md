@@ -47,7 +47,7 @@
 
 * Mocha.
 * Code.
-* Code.
+* Sinon.
 
 
 

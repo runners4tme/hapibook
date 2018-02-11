@@ -57,7 +57,7 @@ Now let's start the server and see it in action by creating a single route to te
 
 * **options **- This is an object that is used for setting additional parameters for our route like validation, auth strategies, etc.
 
-
+Add the following code inside server.js
 
 ```js
 server.route({
@@ -73,7 +73,7 @@ server.route({
 })
 ```
 
-Let's now use one the comes with our server. We are going to **start**, this returns a **Promise,** we can chain events to the promise that will be return by the built-in method. And we will use it to log the port where we are running our server. We will log the error if something goes wrong during this process.
+Let's now use another method that comes with our server. We are going to server.start to initiate our server, this returns a promise**,** we can chain events to the promise that will be returned by the built-in method. And we will use it to log the port where we are running our server. We will log the error if something goes wrong during this process.
 
 ```js
 server.start()
@@ -91,23 +91,25 @@ Run the following command to start the server:
 $ yarn start
 ```
 
-The command will run node with our entry file called server.js, this will start up our server. Open your favorite browser and run the following command on your console. When we visit the localhost:3000, the browser should respond with the following message. If something
+The command will run node with our entry file called server.js, this will start up our server. Open your favorite browser and run the following command on your console. When we visit the localhost:3000, the browser should respond with the following message. 
 
+```
 'api for destinations'
+```
 
-Now that we are sure that the server is running, we can create separate scripts to start and stop the server. Let's create a new folder called bin.
+Now that we are sure that the server is running, we can create separate scripts to start and stop the server with different configureations. Let's create a new folder called bin.
 
 ```
 $ mkdir bin
 ```
 
-Let create two files, called start.js and stop.js to hold our scripts. now remove the code about starting the server and replace it with the following code.
+Let create two files, called start.js and stop.js to hold our scripts. Let's start with the file that will be used for configuring the server and connecting to the database.
 
 ```
 $ touch start.js
 ```
 
-You can add the following code.
+We can remove the code for starting the server from our main server file.You can add the following code inside start.js.
 
 ```js
 const server = require('./server')
@@ -123,13 +125,15 @@ const server = require('./server')
 })();
 ```
 
-Now let's create a simple file to hold our code to stop the server.
+We are using a function that calls itself that wraps around our async function. Inside it we start the server and then connect to our database, then console log the information about the port that we are listening to and also make it clear that we are connected to the database. We catch any errors that might occur when we start the server or connection to the database.
+
+Now let's create a simple file called stop.js to hold our code to stop the server.
 
 ```
 $ touch stop.js
 ```
 
-You can also add the following code to stop our server. This will be useful when we start writing integration tests for our server.
+We are going to manage the stop our server in a similar manner like the way we start our server. You can also add the following code to stop our server.
 
 ```js
 const server = require('./server')
@@ -143,6 +147,8 @@ const server = require('./server')
     };
 })();
 ```
+
+Here we are also using a function that calls itself. Inside this function, we actually don't do that much, other than the fact that we stop the server and log a message which informs us that the server has stopped, we also catch error, if they the occur when we are stopping our server.
 
 ## **2. The request.**
 

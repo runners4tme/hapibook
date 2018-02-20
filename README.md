@@ -32,7 +32,16 @@
 * Associations.
 * Summary. 
 
-**Chapter 4: Hapi Framework**
+**Chapter 4: Restful Architecture**
+
+* Introduction
+* Restful Principles.
+* Restful Best Practices.
+* Destination Resource.
+* User Resource.
+* Summary.
+
+**Chapter 5: Hapi Framework**
 
 * Introduction.
 * The Server Object.
@@ -41,7 +50,7 @@
 * Plugins. 
 * Summary.
 
-**Chapter 5: Authentification**
+**Chapter 6: Authentification**
 
 * Introduction.
 * JSON web tokens.
@@ -51,17 +60,28 @@
 * Appilication of strategy to the server.
 * Summary.
 
-**Chapter 6: Validation**
+**Chapter 7: Validation**
 
-* Strings.
-* Objects.
-* Numbers.
+* Introduction.
+* Basic Validations.
+* Payload Validation.
+* Query Validation.
+* Params Validation.
+* Summary.
 
-**Chapter 7: Tests**
+**Chapter 8: Tests**
 
-* Mocha.
-* Code.
-* Sinon.
+* Introduction.
+* Test Runners.
+* Test Assertions.
+* Test doubles.
+* Unit Tests.
+* Integration Tests.
+* Summary.
+
+
+
+
 
 
 

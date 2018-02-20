@@ -5,37 +5,51 @@
 **Chapter 1: Getting started**
 
 * Introduction.
-* Command Line.
 * NodeJS.
-* MongoDB.
+* Node Modules.
+* Package Managers.
+* Project Management.
+* Summary.
 
 **Chapter 2: Databases**
 
 * Introduction.
-* Database operations.
-* Relationships.
-* Aggregations.
-* Database commands. 
+* MongoDB Commands.
+* Databases.
+* Collections.
+* Documents.
+* Database Operations.
+* Summary.
 
 **Chapter 3: Mongoose**
 
-* Schema types.
-* Queries.
-* Cursors and streams.
-* Chaining commands. 
+* Introduction.
+* Data Model.
+* Schema Types.
+* Schema Methods.
+* Queries and Indexes.
+* Cursors and Streams.
+* Associations.
+* Summary. 
 
-**Chapter 4: Hapi framework**
+**Chapter 4: Hapi Framework**
 
 * Introduction.
-* Server.
-* Request.
-* Reply.
-* Packages. 
+* The Server Object.
+* Request Lifecycle.
+* Response Toolkit.
+* Plugins. 
+* Summary.
 
 **Chapter 5: Authentification**
 
-* Web tokens
-* Basic authentification
+* Introduction.
+* JSON web tokens.
+* Strategies and Schemes.
+* Hashed and Salted passwords.
+* Generating and Validating Tokens.
+* Appilication of strategy to the server.
+* Summary.
 
 **Chapter 6: Validation**
 

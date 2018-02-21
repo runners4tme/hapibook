@@ -2,300 +2,182 @@
 
 In this chapter, we are going to cover the following topics:
 
-* Introduction.
-* Mocha, sinon and code.
-* How to write unit tests.
-* How to integration tests.
-* How to structure assertions. 
+* Understand what joi is all about.
+* How to validate payload for our routes.
+* How to validate params for our routes.
+* How to validate query for our routes.
 
-## Introduction
+## **Introduction**
 
-We are going to create a folder that will hosts all our tests.
-
-```
-$ mkdir test
-```
-
-Now let's create two more files, one file will be for unit tests and the other one will be for integration tests.
+Let's add Joi to our package so that we will be able to handle validation of data from the client.
 
 ```
-$ touch unitTests.js
-$ touch integrationTests.js
+$ yarn add joi
 ```
 
-We need to add to packages for managing our tests. We install them as development dependencies since we don't want to install these packages when we have our application in production.
+We are going to create a folder called validators. inside it, we will create a file called destinations.js and define validators for payload, query and params as well. Let's create it below.
 
 ```
-$ yarn add mocha sinon code --dev
+$ mkdir validators
 ```
 
-### Mocha
+We are going to use Joi which is a package that works really well with hapi framework, this will make it very easy to handle all the information that is sent to our api by the client.
 
-This is a test runner.
+Now we need to validate our users to make sure that users don't try to register and login with incomplete data.
 
-### Sinon
+Inside the validators folder, create a users.js file for our users.
 
-This is a function for double tests.
+```
+$ touch users.js
+```
 
-### Code
+## User Validation
 
-This package is for assertions.
-
-## Unit tests
-
-Units tests are for testing a single unit of the application and check if it works in isolation. Let's start writing some unit tests for our functions.
+Let's start by a user schema to make sure that the users provide all the required information.
 
 ```js
-const { getSalt, getSaltedPassword, passwordIsInvalid, createToken } = require('../api/helpers/userService')
-const { createUser } = require('../api/controllers/handlers/user')
-const { authStatus } = require('../api/helpers/scheme')
-const { expect } = require('code')
-const { describe, it } = global
-const sinon = require('sinon')
-```
+const Joi = require('joi')
 
-We are ready to write some tests now, let's add them to test all the units of our application. Let's start with the token validator function that we use to validate the token. We can easily tests what this function will return each time it is used on it's own.
-
-```js
-describe('authStatus', () => {
-  describe('status with valid token', () => {
-    it('should validate the token', async () => {
-      const validToken = 'dasvcjaegv*&^@je.bvaa@#&^*&#hjdakj.fcthh@#%^@%wdfhqcv'
-      const result = authStatus(validToken)
-      expect(result.authTokenNotProvided).to.be.falsy()
-      expect(result.authTokenLengthIsInvalid).to.be.falsy()
-      expect(result.authTypeIsInvalid).to.be.falsy()
-    })
-  })
-  describe('status with invalid token', () => {
-    it('should invalidate the token', async () => {
-      const inValidToken = 'hgdsaugkdwgg@&^36#7VGSDHwgqgdwyka'
-      const result = authStatus(inValidToken)
-      expect(result.authTokenNotProvided).to.be.truthy()
-      expect(result.authTokenLengthIsInvalid).to.be.truthy()
-      expect(result.authTypeIsInvalid).to.be.truthy()
-    })
-  })
+module.exports.userSchema = Joi.object().keys({
+    username: Joi.string().required(),
+    password: Joi.string().required(),
+    email: Joi.string().optional()
 })
 ```
 
-Nice, now that we have some comfort on the token validator, we can move over to test the user services.
+Let's go to our handlers to apply the above validator.
+
+```
+$ cd ..
+$ cd controllers
+$ cd handlers
+```
+
+Let's apply it to our handler to validate the data when we sign up. We also need to set auth as false since we don't want to apply our auth strategy to this route.
 
 ```js
-describe('userService', () => {
-  describe('getSalt', () => {
-    it('should get salt', async () => {
-      const password = 'password'
-      const result = getSalt(password)
-      expect(result).to.be.typeof('string')
-      expect(result.length).to.be.equal(16)
-    })
-  })
-  describe('getSaltedPassword', () => {
-    it('should salted password', async () => {
-      const salt = '43f716b253be173f9fa75013ea27fa42'
-      const result = getSaltedPassword(password, salt)
-      expect(result).to.be.typeof('string')
-      expect(result.length).to.be.equal(64)
-    })
-  })
-  describe('passwordIsInvalid', () => {
-    it('should validate the password', async () => {
-      const password = 'password'
-      const saltedPassword = 'e876483449e05e9b2754fad90717e92ef4195ad3f7f49f613783613acb9c9844395de4f8f94381cc56f37786d0d70f74077564268871c67caddc8683b206b057'
-      const isPasswordInvalid = passwordIsInvalid(password, saltedPassword, salt)
-      expect(result).to.be.typeof('boolean')
-      expect(result).to.be.truthy()
-    })
-  })
-  describe('createToken', () => {
-    it('should create a token', async () => {
-      const user = { id: '12345', username: 'les', email: 'les@gmail.com' }
-      const result = createToken(user)
-      expect(result).to.be.typeof('string')
-      expect(result.split('.').length).to.be.equal(3)
-    })
-  })
+options: {
+    auth: false,
+    validate: {
+      payload: userSchema
+    }
+  }
+```
+
+Let's also validate the logging in of our users. We also need to set auth as false since we don't want to apply our auth strategy to this route.
+
+```js
+options: {
+    auth: false,
+    validate: {
+      payload: userSchema
+    }
+  }
+```
+
+## Payload validation
+
+Let's go back to our validators and create a file to handle validation for our destinations
+
+```
+$ cd ..
+$ cd validators
+$ touch destinations.js
+```
+
+add the following code for validating the payload of new destinations.
+
+```js
+const Joi = require('joi')
+
+module.exports.rawDestinationSchema = Joi.object().keys({
+  currency: Joi.string().required(),
+  url: Joi.string().required(),
+  languages: Joi.array().required(),
+  capitalCity: Joi.string().required(),
+  population: Joi.string().required()
 })
 ```
 
-We need to do one more unit test for our function that we use to create a user.
+Now we need to add the validator to the object that contains the handler for the route, this will make sure that we get proper error on the client when there has been a problem with the data the server.
+
+This is the first function that will be executed every time a request hits this url and will reply immediately if there is any problem.
 
 ```js
-describe('Users', () => {
-  describe('createUser', () => {
-    it('should create a user', async () => {
-      const expectedData = {
-        username: 'latani',
-        password: 'rockstar123',
-        email: 'latani@gmail.com'
-      }
-      const stub = sinon.stub(User, 'create').resolves({ _id: 1 })
-      const result = await createUser(expectedData)
-      expect(result._id).to.be.equal(1)
-      stub.restore()
-    })
-  })
+options: {
+  validate: {
+  payload: rawDestinationSchema
+  }
+}
+```
+
+## Params Validation
+
+Lets also create a validator for the id of finding a destination.
+
+```js
+module.exports.idSchema = Joi.object().keys({
+  id: Joi.string().length(24). required()
 })
 ```
 
-## Integration tests
-
-Integration tests are for testing that the whole application works well together. Now let's add some tests. We need to declare all the packages that we are going to use to write our tests.
+Now we will be able to get the get destination by id which is pretty much straight forward.
 
 ```js
-const server = require('../server')
-const Destination = require('../api/models/Destination')
-const sinon = require('sinon')
-const { expect } = require('code')
-const { describe, it } = global
+options: {
+  validate: {
+    params: idSchema
+  }
+}
 ```
 
-We are going to add all the tests inside this block of code, this will hold all the tests for destinations.
+Lets also create a validator for the query of finding destinations. All these parameters are optional in this case since will only use them to filter the results that we will get from the database.
 
 ```js
-describe('Destinations', () => {
-
+module.exports.destinationsSchema = Joi.object().keys({
+  currency: Joi.string().optional(),
+  url: Joi.string().optional(),
+  languages: Joi.array().optional(),
+  capitalCity: Joi.string().optional(),
+  population: Joi.string().optional()
 })
 ```
 
-Let's create the test for creating the destinations.
+Now we will be able to get the get destinations and filter them using the queries that we are going to provide which is pretty much straight forward.
 
 ```js
-describe('POST /destinations', () => {
-    it('should create a destination', async () => {
-      const expectedData = {
-        currency: 'ZAR',
-        url: 'www.musanda.co.za',
-        capitalCity: 'lukau',
-        population: 30000,
-        languages: ['tshivenda'],
-        activities: ['rulling']
-      }
-      const options = {
-        method: 'POST',
-        url: '/destinations',
-        payload: expectedData
-      }
-      const stub = sinon.stub(Destination, 'create').resolves({ _id: 1 })
-      const response = await server.inject(options)
-      expect(response.statusCode).to.equal(201)
-      expect(response.result.id).to.equal(1)
-      stub.restore()
-    })
-  })
+options: {
+  validate: {
+    payload: destinationSchema,
+    params: idSchema
+  }
+}
 ```
 
-Let's create test for getting a destination.
+## Query Validation
+
+Lastly we need to make sure that we are sending the correct data to the server when we want to update a destination.
+
+Now we will be able to get the get destination by id which is pretty much straight forward. We just need to re use the idSchema that we created above to complete this task.
 
 ```js
-describe('GET /destination', () => {
-    it('should get a destination', async () => {
-      const expectedData = {
-        currency: 'ZAR',
-        url: 'www.musanda.co.za',
-        capitalCity: 'lukau',
-        population: 30000,
-        languages: ['tshivenda'],
-        activities: ['rulling']
-      }
-      const options = {
-        method: 'GET',
-        url: '/destinations/5a173a2336a04f1a048e8589'
-      }
-      const stub = sinon.stub(Destination, 'findOne').resolves(expectedData)
-      const response = await server.inject(options)
-      expect(response.statusCode).to.equal(200)
-      expect(response.result).to.equal(expectedData)
-      stub.restore()
-    })
-  })
-```
-
-Let's create a test for testing destinations.
-
-```js
-describe('GET /destinations', () => {
-    it('should get all destinations', async () => {
-      const expectedData = [{
-        id: 1,
-        currency: 'ZAR',
-        url: 'www.musanda.co.za',
-        capitalCity: 'lukau',
-        population: 30000,
-        languages: ['tshivenda'],
-        activities: ['rulling']
-      }]
-      const options = {
-        method: 'GET',
-        url: '/destinations'
-      }
-      const stub = sinon.stub(Destination, 'find').resolves(expectedData)
-      const response = await server.inject(options)
-      expect(response.statusCode).to.equal(200)
-      expect(response.result.length).equal(1)
-      stub.restore()
-    })
-  })
-```
-
-Lets create a test to update a destination
-
-```js
-describe('UPDATE /destination', () => {
-    it('should update a destination', async () => {
-      const options = {
-        method: 'PUT',
-        url: '/destinations/5a173a2336a04f1a048e8589',
-        payload: {
-          currency: 'USD',
-          url: 'www.coldbeach.co.za',
-          capitalCity: 'chicago',
-          population: 40000
-        }
-      }
-      const expectedData = {
-        currency: 'USD',
-        url: 'www.coldbeach.co.za',
-        capitalCity: 'chicago',
-        population: 40000,
-        languages: ['tshivenda'],
-        activities: ['rulling']
-      }
-      const stub = sinon.stub(Destination, 'findOneAndUpdate').resolves(expectedData)
-      const response = await server.inject(options)
-      expect(response.statusCode).to.equal(200)
-      expect(response.result).to.equal(expectedData)
-      stub.restore()
-    })
-  })
-```
-
-Let's create a test to test deleting a destination.
-
-```js
-describe('DELETE /destination', () => {
-    it('should delete a destination', async () => {
-      const options = {
-        method: 'DELETE',
-        url: '/destinations/5a173a2336a04f1a048e8589'
-      }
-      const stub = sinon.stub(Destination, 'findOneAndRemove').resolves(null)
-      const response = await server.inject(options)
-      expect(response.statusCode).to.equal(204)
-      expect(response.result).to.equal(null)
-      stub.restore()
-    })
-  })
+options: {
+  validate: {
+    query: destinationSchema
+  }
+}
 ```
 
 ### S**ummary:**
 
-1. How to write unit tests.
-2. Mocha, sinon and code.
-3. How to write unit tests.
-4. How to write integration tests.
-5. How to structure assertions.
+We have learnt the following aspects from the chapter
+
+1. Understand what joi is all about.
+2. How to validate payload for our routes.
+3. How to validate params for our routes.
+4. How to validate query for our routes.
+
+
 
 
 

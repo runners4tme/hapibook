@@ -1,301 +1,458 @@
 # Chapter 5
 
-In this chapter, we are going to cover the following topics:
+In this chapter, we are going to cover the following points:
 
-* Understand what json web tokens.
-* Learn about hapi schemes and strategies.
-* Implement user signup and login.
-* Apply auth to all the routes.
+* How to setup a hapi server.
+* Setting up routes for our server.
+* How to handle request sent to our server.
+* How to send response from our server.
+* Extending our server with Plugins.
 
-## Introduction
+## **Introduction**
 
-We are going to create functions that are going to handle users registration and logging in and out of the application. We will be using JSON web tokens to handle all the interactions with our server.
+This chapter is going to explain what makes hapi framework above a notch compared to our NodeJs frameworks . Hapi Js was build through with the idea that configuration is better than writing code. This is why most of the aspects that you will be doing with hapi, you actually won't be writing any code to handle things like errors, you will configure your routes in such a way that they will be able to handle the errors in a clean and maintainable manner. We are going to create a simple hapi server to get our application up and running. We will also explore the request and helper toolkit that ships with Hapi JS and lastly learn how to extend our server with plugins.
 
-## JSON web tokens
+## **1. The server.**
 
-These tokens contains three parts that might not be visible when you look at the token. The three parts are:
+We are going to use a Hapi JS to create our server. The server object is the foundation of our application, everything part of our application must connect with this object. All hapi servers have options that can be configured to control the behavior of the object and also extend it if necessary.
 
-1. Header - This is an encoded JSON object which contains the the type of the token and the hashing algorithm used. This is the sha512 that we are going to use to create our token.
-2. Payload - This is an encoded JSON object which contains the encrypted data. This will be comprised of the id, username and email address of the user and the expiry date of the token.
-3. Signature - This is an encrypted hash of the header and and payload using the key that will be provided. This key is only known by the originating server that contains it, that is why it must not be hard coded in your code. It must be kept as an environmental variable.
-
-We are certainly going to need a couple of functions that will handle the creation of the token for the user, the validation of the token and also the encoding and decoding of the token.We need to create a functions that will handle salting and hashing and also create JSON web tokens. Let's add the jsonwebtoken package used for encoding and decoding web tokens.
+Now let's change directory to the main folder of our application, from there, create a file call server.js using the following command. This file will hold all the configuration for our server.
 
 ```
-$ yarn add jsonwebtoken
+$ touch server.js
 ```
 
-Now create a new folder called helpers inside the api folder and inside it create a file called userService.js
+Install hapi into our project using yarn.
 
 ```
-$ cd ..
-$ mkdir helpers
-$ touch authService.js
+$ yarn add hapi.js
 ```
 
-Let's import the need packages to get this task started. Crypto is a built-in package for creating password hashes.
+We are now ready to setup our server for testing. There is a class method inside hapi package which we are going to use to create the server. Lets create a new server and also configure the host and port. Each hapi server can only accommodate one connection at a time, that is why we have to set the host and port when we create an instance of the server. The method to create a connection is no longer available in the latest version of Hapi JS.
 
 ```js
-const Crypto = require('crypto')
-const webtoken = require('jsonwebtoken')
+const hapi = require('hapi')
+const server = new hapi.Server({
+    host: 'localhost',
+    port: 3000
+})
 ```
 
-We are going to create the following pure function to handle the creation of password salts, hashes and tokens.
+Above we have setup a server that is hosted on localhost and running on port 3000.
 
-* **getSalt** - for creating a random salt for our password.
-* **getSaltedPassword** - for creating a salted password.
-* **passwordIsInvalid** - for checking if the user password is valid or not.
-* **createToken** - for creating a token.
+The following methods amongst others are available to assist you with server configuration.
+
+* **server.route** - This method is for configuring routes for your server. It accepts a object or an array of objects as a parameter.
+* **server.start** - This method is useful for starting the server. This method returns a promise and throws an error if the server is not correctly configured or will not be able to listen to incoming events.
+* **server.stop** - this method is useful for stoping the server. It accepts options that can be used to override the time needed to stop all the incoming requests to the server.
+* **server.register** - this method is used to register plugins to the server. It accepts a plugin object and optional parameters. 
+
+Now let's start the server and see it in action by creating a single route to test it. We are going to create a single route using the server.route method. We are going to create an object that will handle the request when with hit '/' on our server. The object can have the following four properties, the fourth property is optional.
+
+* **path** - This is the absolute path for all the incoming requests.
+
+* **method** - This is the HTTP method we want to perform on the resource. This can be a single method or any array of methods that are assigned to the same path specified.
+
+* **handler** - This is the function that will handle the request and handle the authentication, validation  and generate the correct response for our route.
+
+* **options **- This is an object that is used for setting additional parameters for our route like validation, auth strategies, etc.
+
+Add the following code inside server.js
 
 ```js
-module.exports.getSalt = password => {
-  return Crypto.randomBytes(16).toString('hex')
-}
-
-module.exports.getSaltedPassword = (password, salt) => {
-  return Crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex')
-}
-
-module.exports.passwordIsInvalid = (rawPassword, encryptedPassword, salt) => {
-  return encryptedPassword !== Crypto.pbkdf2Sync(rawPassword, salt, 1000, 64, 'sha512').toString('hex')
-}
-
-module.exports.createToken = (id, username, email) => {
-  let expiryDate = new Date()
-  expiryDate.setDate(expiryDate.getDate() + 7)
-  return webtoken.sign({
-    _id: id,
-    username: username,
-    email: email,
-    exp: parseInt(expiryDate.getTime() / 1000)
-  }, 'Hellofromtheotherside')
-}
+server.route({
+    path: '/',
+    method:  'GET',
+    handler: (request, handler) => {
+        try  {
+            return 'api for destinations'
+        }  catch (error)  {
+            return error
+        }
+    }
+})
 ```
 
-## User registration and login sessions
+Let's now use another method that comes with our server. We are going to server.start to initiate our server, this returns a promise**,** we can chain events to the promise that will be returned by the built-in method. And we will use it to log the port where we are running our server. We will log the error if something goes wrong during this process.
 
-Let's start by creating a handler for signing up. So we need the file that will host all the interaction with our users. We import all the modules that are need for our authentication strategy. Now let's head to the handlers folder and create a file called user.js
+```js
+server.start()
+.then(() => {
+    console.log(`running on ${server.info.port}`)
+})
+.catch(err => {
+    console.log(err)
+})
+```
+
+Run the following command to start the server:
 
 ```
-$ cd ..
+$ yarn start
+```
+
+The command will run node with our entry file called server.js, this will start up our server. Open your favorite browser and run the following command on your console. When we visit the localhost:3000, the browser should respond with the following message.
+
+```
+'api for destinations'
+```
+
+Now that we are sure that the server is running, we can create separate scripts to start and stop the server with different configureations. Let's create a new folder called bin.
+
+```
+$ mkdir bin
+```
+
+Let create two files, called start.js and stop.js to hold our scripts. Let's start with the file that will be used for configuring the server and connecting to the database.
+
+```
+$ touch start.js
+```
+
+We can remove the code for starting the server from our main server file.You can add the following code inside start.js.
+
+```js
+const server = require('./server')
+
+(async () => {
+    try {
+        await server.start()
+        await mongoose.connect('mongodb://127.0.0.1/test', { useMongoClient: true })
+        console.log(`Server running at ${server.info.port} and connected to the Db!`)
+    } catch(err) {
+        console.log(err)
+    };
+})();
+```
+
+We are using a function that calls itself that wraps around our async function. Inside it we start the server and then connect to our database, then console log the information about the port that we are listening to and also make it clear that we are connected to the database. We catch any errors that might occur when we start the server or connection to the database.
+
+Now let's create a simple file called stop.js to hold our code to stop the server.
+
+```
+$ touch stop.js
+```
+
+We are going to manage the stop our server in a similar manner like the way we start our server. You can also add the following code to stop our server.
+
+```js
+const server = require('./server')
+
+(async () => {
+    try {
+        await server.stop()
+        console.log(`Server stopped running at ${server.info.port}`)
+    } catch(err) {
+        console.log(err)
+    };
+})();
+```
+
+Here we are also using a function that calls itself. Inside this function, we actually don't do that much, other than the fact that we stop the server and log a message which informs us that the server has stopped, we also catch error, if they the occur when we are stopping our server.
+
+## **2. The request.**
+
+The request object in hapi js is created internally for each incoming request and holds all the details about the request that you are sending to the server, this include the headers, events, info, query, params, payload and authentification details that are all available for you to use inside the handler function. The request object has the following important properties that we need to understand a bit before we go any further with extending the functionality of our server.
+
+_**2.1 request.payload**_
+
+This is the body object which contains the properties and values that are sent with the request.
+
+_**2.2 request.params**_
+
+This is the object that contains the parameters is passed through the url when a request is processed.
+
+**2.3 request.query**
+
+This is the object that contains the parsed query string 3that is passed through the url by the client.
+
+## **3. The helper toolkit.**
+
+The helper toolkit contains the methods that is used to send information to the client after it has request something from the server. This can also be extended to include the status code. The following methods are part of the helper toolkit and will come in handy later on in the book.
+
+* **helper.response** - This method takes in a parameter and returns a response object, you can specify headers, types etc.
+* **helper.redirect** - This method takes in a path and redirect the client to the the given parameter.
+* **helper.authenticated** - This method takes in an object and passes the valid credentials to the request object.
+* **helper.unauthenticated** - This method takes in an object and passes an error and invalid credentials when authentication fails.
+
+We can use some of the above methods to create controllers for our application. Controllers will allow us to interact with oiur database, Create the controllers folder.
+
+```
+$ mkdir controllers
+```
+
+Let's make a folder for handlers inside our controllers folder. This folder will hold all the handlers for our routes.
+
+```
 $ cd controllers
-$ cd handlers
-$ touch user.js
+$ mkdir handlers
 ```
 
-Now let's import our user service and user model with boom to handler our errors.
+Handlers need to be created first before we can create the routes for our services. Inside our handle we also need to handle errors accordingly, we will be using a package called boom to handle errors for our application. Let's install the package.
+
+```
+$ yarn add boom
+```
+
+Now we are all set to start creating our handlers. We will start with our Destinations. We are going to create a handler for making a  new destination.
+
+Inside the handlers folder, create a file called destination.js
+
+```
+$ cd handlers
+$ touch destination.js
+```
+
+Import the Destination model and also boom for handling our errors.
 
 ```js
 const Boom = require('boom')
-const User = require('../../models/User')
-const { 
-  getSalt, 
-  getSaltedPassword, 
-  passwordIsInvalid, 
-  createToken 
-} = require('../../helpers/userService')
+const Destination = require('../../models/Destination')
 ```
 
-We have to add a function to create the users.
+Add the following code for creating a new destination.
 
 ```js
-const createUser = async (username, password, email) => {
+module.exports.newDestination = async (request, helper) => {
   try {
-    const salt = getSalt(password)
-    const enctryptedPassword = getSaltedPassword(password, salt)
-    const newUser = { username, salt, password: enctryptedPassword }
-    const user = await User.create(newUser)
-    return user
-  } catch(error) {
-    throw error
-  }
-}
-```
-
-We start off by creating an async function called createUser, this is a function that we will use to create a new user. it will take a username, password and email as parameters. Inside it, we create a salt and encryptedPassword using our getSalt and getSaltedPassword functions. We create and save the user in our database. We lastly return the id of this user.
-
-Now let's add a handler for signing up for our users.
-
-```js
-module.exports.signUpUser = async (request, helper) => {
-  try {
-    const { payload: { username, password, email }} = request
-    const salt = getSalt(password)
-    const encryptedPassword = getSaltedPassword(password, salt)
-    const newUser = { username, salt, password: encryptedPassword }
-    const user = await User.create(newUser)
-    const token = createToken(user._id, username, email)
-    return helper.response({token}).code(201)
+    const payload = { ...request.payload }
+    const destination = await Destination.create(payload)
+    return helper.response({ id: destination._id }).code(201)
   } catch (error) {
     return Boom.badRequest(error)
   }
 }
 ```
 
-We create an async function called signUpUser, inside it, we destructure the payload from the request to get all the parameters we want which is the username, password and email. After this we create a salt and hashed password. We then create a newUser object containing the salted and hashed password, we then create and save this use inside our database. After saving it to the database. We use createToken to create a new token with the user's id, username and email. We generate a response with the token to login the user and set the status code. If something goes wrong we respond with the error.
+To create a new destination is simple, We create an async function, inside it, we firstly create a new object called payload using object spread. This is just a short-hand for the built-in object assign method. Then we create and save a new destination to our database. Lastly we use the response method to generate a response for our route and specify the response code. If anything goes wrong, we use boom to create an error response and return it.
 
-Now let's create another one for signing in the users.
+Now let's handle showing a destination. Add the following code for showing a destination.
 
 ```js
-module.exports.signInUser = async (request, helper) => {
+module.exports.showDestination = async (request, helper) => {
   try {
-    const { payload: { username, password }} = request
-    const user = await User.findOne({ username: username })
-    if (!user) {
-      return Boom.unauthorized('invalid username')
-    } else if (passwordIsInvalid(password, user.password, user.salt)) {
-      return Boom.unauthorized('incorrect password')
-    } else {
-      const token = createToken(user._id, username, user.email)
-      return helper.response({token}).code(200)
-    }
+    const id = request.params.id
+    const destination = await Destination.findOne({_id: id})
+    return helper.response(destination).code(200)
   } catch (error) {
     return Boom.badRequest(error)
   }
 }
 ```
 
-To login the users, We create an async function, inside the function we start by destructuring the request payload to get username and password. We use the username provided to find the user, if the user doesn't exist we return an error specifying that the username is invalid. If the password of the user is not valid, we return an error specifying that the password is not valid otherwise we create a new token for the user and return it.
+We start off by creating an async function, inside it we create a new variable called id, which is the id of the destination that we want to show. We use the findOne method to find the destination for our collection. Now we lastly create a response which is all the information stored for this destination and set the response code as well. If anything goes wrong, we use boom to create an error response and return it.
 
-Let's create the object to configure our routes to make it possible to sign up and login into the application.
+Now we need to update a destination, add the following code for updating a destination.
+
+```js
+module.exports.updateDestination = async (request, helper) => {
+  try {
+    const id = request.params.id
+    const payload = { ...request.payload }
+    const destination = await Destination.findOneAndUpdate({_id: id}, payload, {new: true})
+    return helper.response(destination).code(200)
+  } catch (error) {
+    return Boom.badRequest(error)
+  }
+}
+```
+
+Updating a destination involves two operations, finding the destination that we want to update and updating the destination. Luckily we can use findOneAndUpdate method to do these two operations at the same time, we start off by creating an async function, inside it, we declare two variables, id which is the id of the destination we want to update and payload which is the data that we want to update our destination with, we then update the destination with the findOneAndUpdate method. We can now send the updated destination with our response. If anything goes wrong, we use boom to create an error response and return it.
+
+We need to do is to remove a destination, if we don't want it anymore. Add the following code for deleting a destination.
+
+```js
+module.exports.removeDestination = async (request, helper) => {
+  try {
+    const id = request.params.id
+    const destination = await Destination.findOneAndRemove({_id: id})
+    return helper.response(destination).code(204)
+  } catch (error) {
+    return Boom.badRequest(error)
+  }
+}
+```
+
+We need only need to know the id of the destination that we want to delete to get this done, so we start by creating an async function, then we create a variable call id passed through url parameters. Now we can use the findOneAndRemove method to delete it. We respond with nothing and appropriate code for this operation.
+
+Lastly we need to find all the destinations. Add the following code for finding all the destinations.
+
+```js
+module.exports.showDestinations = async (request, helper) => {
+  try {
+    const query = { ...request.query }
+    const destinations = await Destination.find(query)
+    return helper.response(destinations).code(200)
+  } catch (error) {
+    return Boom.badRequest(error)
+  }
+}
+```
+
+This is the last handler for our destinations. We need to use the query object from our request for this task. We create an async function, inside this function, we create a variable called query which will hold all the parameters that we want to filter our destinations with when we request for them. This means that we can filter destinations by currency, population, etc. We then use our helper toolkit to create a response and return it. If we encounter an error, we respond with a bad request.
+
+Now we need create the object that will be used for configuring our routes, let's create a folder called routes inside the controllers directory.
 
 ```
-$ cd ..
+$ mkdir routes
+```
+
+Let's change directory and get into the folder and create a file called destinations.js.
+
+```
 $ cd routes
-$ touch user.js
+$ destinations.js
 ```
 
-Inside the user.js file, let's import the handlers that we just created for our users.
+Inside the file, we need to import the handlers that we just created:
 
 ```js
-const { signUpUser, signInUser } = require('../handlers/user')
+const { 
+  newDestination, 
+  showDestination, 
+  updateDestination, 
+  removeDestination, 
+  showDestinations 
+} = require('../handlers/destination')
 ```
 
-Let's start by registering the user. The users will register on the path '/users/signup' using the method called POST and the signUpUser handler.
+We are going to create to create a destination on path '/destinations' and the method use is POST, we will use the newDestination handler.
 
 ```js
-const signUp = {
-  path: '/users/signup',
-  method: 'POST',
-  handler: signUpUser
+const createDestination = {
+    path: '/destinations',
+    method: 'POST',
+    handler: newDestination
 }
 ```
 
-We need to sign in users as well. The users will sign in on the path '/users/signin' using the method called POST and the signInUser handler.
+We are going to find a destination using an id, thus the path for finding a single destination is '/destinations/{id}' and the method is GET, we will use the showDestination handler in this task.
 
 ```js
-const signIn = {
-  path: '/users/signin',
-  method: 'POST',
-  handler: signInUser
+const findDestination = {
+    path: '/destinations/{id}',
+    method: 'GET',
+    handler: showDestination
 }
 ```
 
-Now let's make all the function available to other parts of our application by exporting them.
+We are going to update a destination using an id, thus the path for finding a single destination is '/destinations/{id}' and the method is PUT, we will use the updateDestination handler in this task.
 
 ```js
-module.exports = [ signUp, signIn ]
+const editDestination = {
+    path: '/destinations/{id}',
+    method: 'PUT',
+    handler: updateDestination
+}
 ```
 
-We also need to add these object inside our index file for all our routes.
+We are going to delete a destination using an id, thus the path for finding a single destination is '/destinations/{id}' and the method is DELETE, we will use the deleteDestination handler in this task.
+
+```js
+const deleteDestination = {
+    path: '/destinations/{id}',
+    method: 'DELETE',
+    handler: removeDestination
+}
+```
+
+We are going to find all the destinations using the path '/destinations'. The method is GET and the showDestinations will handle this operation.
+
+```js
+const findDestinations = {
+    path: '/destinations', 
+    method: 'GET',
+    handler: showDestinations
+}
+```
+
+We also need to combine our route helpers into an array and export them.
+
+```js
+module.exports = [ 
+  createDestination, 
+  findDestination, 
+  editDestination, 
+  findDestinations, 
+  deleteDestination
+]
+```
+
+We got to create an index file to export all our routes so that they can be used inside our server.js file.
 
 ```
 $ cd ..
+$ touch index.js
 ```
 
-Inside the index.js file add the following code.
+Add the following code to the file to import our objects for configuring routes and combine all of them.
 
 ```js
-const users = require('./routes/users')
 const destinations = require('./routes/destinations')
 
-module.exports = [...destinations, ...users]
+module.exports = [...destinations]
 ```
 
-## Anthentification Schemes and Strategies
+We have successfully created all the configuration for our destination routes, let's extend our server further with plugins.
 
-We need to create a custom authentication decorator that will wrap all our requests to all the endpoints that requires the user to be logged in to access the resources that exist in that location. Let's add it to our project. Firstly let's import the packages that are need for this task. We are going to use boom to handle all the errors and jsonwebtoken to validate the token sent by the user.
+## **4. Plugins.**
 
-Let's go to our helpers folder and and create a file called scheme.js
+We are going to register a couple of packages as plugins so that we will be able to handle logs for our server on the console. We are going to use a package called good, we can define options for it below.
+
+We need to register the plugins before we start the server and calling it after registering all the packages to our server. We are going to use monitor events that will be happening to our server. Whenever such events occurs, I want to log the errors, response and requests so that I can immediately pick up if there is anything not working well on our api server.
+
+Let's install some of the packages that we want to add as plugins to our server.
 
 ```
-$ cd cd ..
-$ cd helpers
-$ touch scheme.js
+$ yarn add good good-console good-squeeze
 ```
 
-Then require all the needed packages.
+We are going to add our plugins and edit the code to start the server once the registration is complete. We start by creating options for our registration of the server. After that we register good as a plugin using the built-in method register. Then we start the server and connect to the database.
 
 ```js
-const Boom = require('boom')
-const jwt = require('jsonwebtoken')
-```
+const server = require('../server');
+const mongoose = require('mongoose');
+const good = require('good');
+mongoose.Promise = global.Promise;
 
-Then we need to create a function that will process the validation of our token from the client.
-
-```js
-const authStatus = token => {
-  return {
-    authTokenNotProvided: !!token,
-    authTokenLengthIsInvalid: token.split('.').length !== 3,
-    authTypeIsInvalid: token.split('.')[0].split(' ')[0] !== 'Bearer'
-  }
-}
-```
-
-Lastly we need a scheme that will handle all the results of the status of the token that we just process.
-
-```js
-const scheme = (server, options) => {
-  return {
-    authenticate: (request, helper) => {
-      try {
-        const { authorization } = request.headers
-        const { authTokenNotProvided, authTokenLengthIsInvalid, authTypeIsInvalid } = authStatus(authorization)
-        if (authTokenNotProvided) {
-          return Boom.unauthorized('missing token', 'Bearer')
-        } else {
-          if (authTokenLengthIsInvalid) {
-            return Boom.unauthorized('invalid token', 'Bearer')
-          } else if (authTypeIsInvalid) {
-            return Boom.unauthorized('invalid token type', 'Bearer')
-          } else {
-            const token = authorization.split(' ')[1]
-            const payload = jwt.verify(token, 'Hellofromtheotherside')
-            return helper.authenticated({ credentials: payload })
-          }
-        }
-      } catch (error) {
-        return Boom.unauthorized(error)
-      }
+const options = {
+    ops: {
+        interval: 1000
+    },
+    reporters: {
+        myConsoleReporter: [{
+            module: 'good-squeeze',
+            name: 'Squeeze',
+            args: [{log: '*', error: '*', requests: '*', response: '*'}]
+        }, {
+            module: 'good-console'
+        }, 'stdout']
     }
-  }
-}
+};
 
-module.exports.authStatus = authStatus
-module.exports.scheme = scheme
+(async () => {
+    try {
+        await server.register({ plugin: good, options })
+        await server.start()
+        await mongoose.connect('mongodb://127.0.0.1/test', { 
+          useMongoClient: true 
+        })
+        console.log(`Server running at ${server.info.port} and connected to the Db!`)
+    } catch(err) {
+        console.log(err)
+    };
+})();
 ```
 
-We create the authenticate we will be called before our handlers. Inside it, we declare a variable called authorization which is our token from the client, we create a new validation status object using the token and the authStatus function. If the token is not provided, we return an error stating that a token is missing. If the length is not valid, we return an error stating that the token is invalid, If the token type is not valid, we return an error specifying that the token type is not valid. If the token is valid, we verify it with our secret code that only our server knows and return the user's id, username and email as credentials. Otherwise if there was an error, we just return an error stating that the user is not authorized. We export the authStatus and the scheme so that we can use them in other parts of our application.
-
-We can now set the Bear scheme as our default strategy for authentication. Inside our server.js file add the following code.
-
-```js
-server.auth.scheme('token', scheme)
-server.auth.strategy('Bearer', 'token')
-server.auth.default('Bearer')
-```
-
-All our routes are now protected the the scheme that we created above.
+Whenever you now make a request to our server, the path, status code and other details will be logged to our console.
 
 ### S**ummary:**
 
-We have learnt the following aspects from the chapter
-
-1. Understand what json web tokens.
-2. Learn about hapi schemes and strategies.
-3. Implement user signup and login.
-4. Apply auth to all the routes.
+1. How to setup a hapi server.
+2. Setting up routes for our server.
+3. How to handle request sent to our server.
+4. How to send response from our server.
+5. Extending our server with Plugins.
 
 
 

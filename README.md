@@ -8,7 +8,7 @@
 * NodeJS.
 * Node Modules.
 * Package Managers.
-* Project Management.
+* Project Structure.
 * Summary.
 
 **Chapter 2: Databases**

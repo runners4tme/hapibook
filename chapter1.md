@@ -55,7 +55,7 @@ $ yarn add [package] --dev
 Upgrading a dependency.
 
 ```
-$ yarn upgrade [package] 
+$ yarn upgrade [package]
 ```
 
 Removing a dependency.
@@ -159,8 +159,8 @@ You have successfully created a package.json file. This all our development and 
 
 1. Introduction.
 2. NodeJS.
-3. Node Modules.
-4. Package Managers.
+3. Package Managers.
+4. Node Modules.
 5. Project Structure.
 6. Summary.
 

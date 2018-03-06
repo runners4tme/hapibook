@@ -63,7 +63,7 @@ Add the following code inside server.js
 server.route({
     path: '/',
     method:  'GET',
-    handler: (request, handler) => {
+    handler: (request, helper) => {
         try  {
             return 'api for destinations'
         }  catch (error)  {

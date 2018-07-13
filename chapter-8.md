@@ -1,4 +1,4 @@
-# Chapter 8
+# Chapter 7
 
 In this chapter, we are going to cover the following topics:
 
@@ -29,17 +29,7 @@ We need to add to packages for managing our tests. We install them as developmen
 $ yarn add mocha sinon code --dev
 ```
 
-### Mocha
-
-This is a test runner.
-
-### Sinon
-
-This is a function for double tests.
-
-### Code
-
-This package is for assertions.
+We are going to write our tests using the above packages that we have just installed. Mocha which is a test runner. We will use it to run our tests. Sinon which is a test double library that has spies, studs and mocks and lastly code is a simple and user friendly assertion library.
 
 ## Unit tests
 
@@ -296,8 +286,6 @@ describe('DELETE /destination', () => {
 3. How to write unit tests.
 4. How to write integration tests.
 5. How to structure assertions.
-
-
 
 
 

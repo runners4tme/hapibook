@@ -1,4 +1,4 @@
-# Chapter 7
+# Chapter 6
 
 In this chapter, we are going to cover the following topics:
 
@@ -176,8 +176,6 @@ We have learnt the following aspects from the chapter
 2. How to validate payload for our routes.
 3. How to validate params for our routes.
 4. How to validate query for our routes.
-
-
 
 
 

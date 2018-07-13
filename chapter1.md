@@ -107,13 +107,13 @@ Open your console and change directory to where you want to keep the code for al
 Firstly you have to create a folder called LiteCamp by running the following command.
 
 ```
-$ mkdir  LiteCamp
+$ mkdir  DestinationApp
 ```
 
 Change directory into the root of the folder that you have just created.
 
 ```
-$ cd LiteCamp
+$ cd DestinationApp
 ```
 
 We have to install yarn and use it to initialize a new package.json file. The -g is options which allows us to install packages globally and allows us to use the package when we are anywhere in our machine. Now we are going to install Yarn using NPM which is the default package manager for NodeJS. From thereafter, we will be managing all the external modules using Yarn.
@@ -130,7 +130,7 @@ $ yarn init
 
 Yarn is going to ask you a couple of questions regarding the set up of your package.json file on the command line interface. Please provide the provide the following answers to make sure that we have the same package.json file.
 
-* Name = litecamp.
+* Name = DestinationApp.
 * Version = 1.0.0.
 * Description = A small api about holiday destinations.
 * Entry point = server.js.
@@ -144,7 +144,7 @@ If you open your package.json file, it should look like this:
 
 ```json
 {
-  "name": "HolidayApp",
+  "name": "DestinationApp",
   "version": "1.0.0",
   "description": "a small api about holiday destinations",
   "main": "server.js",

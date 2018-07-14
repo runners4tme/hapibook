@@ -155,12 +155,12 @@ Let's create the test for creating the destinations.
 describe('POST /destinations', () => {
     it('should create a destination', async () => {
       const expectedData = {
-        currency: 'ZAR',
-        url: 'www.musanda.co.za',
-        capitalCity: 'lukau',
-        population: 30000,
-        languages: ['tshivenda'],
-        activities: ['rulling']
+        name: "Cape Town",
+        currency: "Rand",
+        languages: ["Xhosa", "Afrikaans", "English"],
+        population: 12356000,
+        interests: ["Surfing", "Fishing"],
+        freeWifi: true
       }
       const options = {
         method: 'POST',
@@ -182,12 +182,12 @@ Let's create test for getting a destination.
 describe('GET /destination', () => {
     it('should get a destination', async () => {
       const expectedData = {
-        currency: 'ZAR',
-        url: 'www.musanda.co.za',
-        capitalCity: 'lukau',
-        population: 30000,
-        languages: ['tshivenda'],
-        activities: ['rulling']
+        name: "Cape Town",
+        currency: "Rand",
+        languages: ["Xhosa", "Afrikaans", "English"],
+        population: 12356000,
+        interests: ["Surfing", "Fishing"],
+        freeWifi: true
       }
       const options = {
         method: 'GET',
@@ -208,13 +208,12 @@ Let's create a test for testing destinations.
 describe('GET /destinations', () => {
     it('should get all destinations', async () => {
       const expectedData = [{
-        id: 1,
-        currency: 'ZAR',
-        url: 'www.musanda.co.za',
-        capitalCity: 'lukau',
-        population: 30000,
-        languages: ['tshivenda'],
-        activities: ['rulling']
+        name: "Cape Town",
+        currency: "Rand",
+        languages: ["Xhosa", "Afrikaans", "English"],
+        population: 12356000,
+        interests: ["Surfing", "Fishing"],
+        freeWifi: true
       }]
       const options = {
         method: 'GET',
@@ -238,19 +237,17 @@ describe('UPDATE /destination', () => {
         method: 'PUT',
         url: '/destinations/5a173a2336a04f1a048e8589',
         payload: {
-          currency: 'USD',
-          url: 'www.coldbeach.co.za',
-          capitalCity: 'chicago',
-          population: 40000
+          population: 41298265,
+          freeWifi: false
         }
       }
       const expectedData = {
-        currency: 'USD',
-        url: 'www.coldbeach.co.za',
-        capitalCity: 'chicago',
-        population: 40000,
-        languages: ['tshivenda'],
-        activities: ['rulling']
+        name: "Cape Town",
+        currency: "Rand",
+        languages: ["Xhosa", "Afrikaans", "English"],
+        population: 41298265,
+        interests: ["Surfing", "Fishing"],
+        freeWifi: false
       }
       const stub = sinon.stub(Destination, 'findOneAndUpdate').resolves(expectedData)
       const response = await server.inject(options)
